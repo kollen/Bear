@@ -135,7 +135,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>,Cloneable{
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		//从输入流in中读取字节流并反序列化为对象
-		byte version = in.readByte(); //读取版本号
+		byte version = in.readByte(); //读取版本号	只是要干什么？？
 		status = in.readByte();
 		fetchTime = in.readLong();
 		fetchInterval = in.readInt();

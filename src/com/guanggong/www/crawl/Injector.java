@@ -165,7 +165,6 @@ public class Injector extends Configured implements Tool{
 		sortJob.setOutputValueClass(CrawlDatum.class);
 		sortJob.setLong("injector.current.time", System.currentTimeMillis());
 		RunningJob mapJob = JobClient.runJob(sortJob);
-
 		long urlsInjected = mapJob.getCounters().findCounter("injector", "urls_injected").getValue();
 		long urlsFiltered = mapJob.getCounters().findCounter("injector", "urls_filtered").getValue();
 		LOG.info("Injector: total number of urls rejected by filters: " + urlsFiltered);
@@ -176,17 +175,16 @@ public class Injector extends Configured implements Tool{
 		LOG.info("Injector: Merging injected urls into crawldb");
 		JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);//已经合并了current目录
 		FileInputFormat.addInputPath(mergeJob, tempDir);//合并临时目录
+		mergeJob.setMapperClass(TestMapper.class);
 		mergeJob.setReducerClass(InjectReducer.class);//合并所有相同的url入口
 		JobClient.runJob(mergeJob);
 		CrawlDb.install(mergeJob,crawlDb);//合并了所有相同的url入口后，重命名该文件为current
-		
 		//清除临时文件
 		FileSystem fs = FileSystem.get(getConf());
 		fs.delete(tempDir,true);
 		
 		long end = System.currentTimeMillis();
 		LOG.info("Injector: finished at " + sdf.format(end));
-		
 		
 		
 	}
@@ -212,3 +210,4 @@ public class Injector extends Configured implements Tool{
 	}
 
 }
+
